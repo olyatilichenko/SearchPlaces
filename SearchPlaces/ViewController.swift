@@ -18,7 +18,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var mapView: GMSMapView!
     
     var locationManager: CLLocationManager!
-    var placePicker: GMSPlacePicker!
+    var placePicker: GMSPlacePickerViewController!
     var latitude: Double!
     var longitude: Double!
     
@@ -30,25 +30,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         let viewport = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
         let config = GMSPlacePickerConfig(viewport: viewport)
         
-        self.placePicker = GMSPlacePicker(config: config)
+        self.placePicker = GMSPlacePickerViewController(config: config)
+        placePicker.delegate = self
         
-        placePicker.pickPlace { (place: GMSPlace?, error: Error?) -> Void in
-            
-            if let error = error {
-                print("Error occurred: \(error.localizedDescription)")
-                return
-            }
-            
-            if let place = place {
-                let coordinates = CLLocationCoordinate2DMake(place.coordinate.latitude, place.coordinate.longitude)
-                let marker = GMSMarker(position: coordinates)
-                marker.title = place.name
-                marker.map = self.mapView
-                self.mapView.animate(toLocation: coordinates)
-            } else {
-                print("No place was selected")
-            }
-        }
+        present(placePicker, animated: true, completion: nil)
     }
 
     override func viewDidLoad() {
@@ -67,7 +52,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         self.mapView.animate(toZoom: 14.2)
         self.view.addSubview(mapView)
     }
-    
     // MARK: Location protocol
     
     func locationManager(_ manager: CLLocationManager,
@@ -87,10 +71,46 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     private func locationManager(manager: CLLocationManager,
-                         didFailWithError error: Error){
+                                 didFailWithError error: Error){
         
         print("An error occurred while tracking location changes : \(error.localizedDescription)")
     }
-   
+    
+    func placePickerDidCancel(_ viewController: GMSPlacePickerViewController) {
+        NSLog("The place picker was canceled by the user")
+        
+        viewController.dismiss(animated: true, completion: nil)
+    }
+    
 }
+
+extension ViewController: GMSPlacePickerViewControllerDelegate {
+        
+    func placePicker(_ viewController: GMSPlacePickerViewController, didPick place: GMSPlace) {
+        
+        let coordinates = CLLocationCoordinate2DMake(place.coordinate.latitude, place.coordinate.longitude)
+        let marker = GMSMarker(position: coordinates)
+        marker.title = place.name
+        marker.map = self.mapView
+        self.mapView.animate(toLocation: coordinates)
+        
+        viewController.dismiss(animated: true, completion: nil)
+    }
+    
+    func placePicker(_ viewController: GMSPlacePickerViewController, didFailWithError error: Error) {
+        // In your own app you should handle this better, but for the demo we are just going to log
+        // a message.
+        NSLog("An error occurred while picking a place: \(error)")
+    }
+
+    
+    func placePickerDidCancel(_ viewController: GMSPlacePickerViewController, didPick place: GMSPlace) {
+        NSLog("The place picker was canceled by the user")
+        
+        // Dismiss the place picker.
+        viewController.dismiss(animated: true, completion: nil)
+    }
+}
+    
+
 

@@ -15,7 +15,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet var mapViewContainer: UIView!
     
-    var googleMapView: GMSMapView!
+    var mapView: GMSMapView!
     
     var locationManager: CLLocationManager!
     var placePicker: GMSPlacePicker!
@@ -25,10 +25,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBAction func showSearchController(sender: AnyObject) {
         
         let center = CLLocationCoordinate2DMake(self.latitude, self.longitude)
-        let northEast = CLLocationCoordinate2DMake(center.latitude + 0.001, center.longitude + 0.001)
-        let southWest = CLLocationCoordinate2DMake(center.latitude - 0.001, center.longitude - 0.001)
+        let northEast = CLLocationCoordinate2DMake(center.latitude + 0.012, center.longitude + 0.012)
+        let southWest = CLLocationCoordinate2DMake(center.latitude - 0.012, center.longitude - 0.012)
         let viewport = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
         let config = GMSPlacePickerConfig(viewport: viewport)
+        
         self.placePicker = GMSPlacePicker(config: config)
         
         placePicker.pickPlace { (place: GMSPlace?, error: Error?) -> Void in
@@ -42,8 +43,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                 let coordinates = CLLocationCoordinate2DMake(place.coordinate.latitude, place.coordinate.longitude)
                 let marker = GMSMarker(position: coordinates)
                 marker.title = place.name
-                marker.map = self.googleMapView
-                self.googleMapView.animate(toLocation: coordinates)
+                marker.map = self.mapView
+                self.mapView.animate(toLocation: coordinates)
             } else {
                 print("No place was selected")
             }
@@ -62,9 +63,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         locationManager.requestWhenInUseAuthorization()
-        self.googleMapView = GMSMapView(frame: self.mapViewContainer.frame)
-        self.googleMapView.animate(toZoom: 18.0)
-        self.view.addSubview(googleMapView)
+        self.mapView = GMSMapView(frame: self.mapViewContainer.frame)
+        self.mapView.animate(toZoom: 14.2)
+        self.view.addSubview(mapView)
     }
     
     // MARK: Location protocol
@@ -78,9 +79,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
         let coordinates = CLLocationCoordinate2DMake(self.latitude, self.longitude)
         let marker = GMSMarker(position: coordinates)
+        let circle = GMSCircle(position: coordinates, radius: 1000)
         marker.title = "I am here"
-        marker.map = self.googleMapView
-        self.googleMapView.animate(toLocation: coordinates)
+        marker.map = self.mapView
+        circle.map = self.mapView
+        self.mapView.animate(toLocation: coordinates)
     }
     
     private func locationManager(manager: CLLocationManager,

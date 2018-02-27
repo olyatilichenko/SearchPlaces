@@ -26,7 +26,11 @@
                                 <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                                 <items>
                                     <navigationItem title="Search on Google Places" id="1bH-qC-efR">
-                                        <barButtonItem key="rightBarButtonItem" systemItem="search" id="6Pv-kL-ftl" userLabel="Search"/>
+                                        <barButtonItem key="rightBarButtonItem" systemItem="search" id="6Pv-kL-ftl" userLabel="Search">
+                                            <connections>
+                                                <action selector="showSearchControllerWithSender:" destination="BYZ-38-t0r" id="ylH-Gv-kSd"/>
+                                            </connections>
+                                        </barButtonItem>
                                     </navigationItem>
                                 </items>
                             </navigationBar>
